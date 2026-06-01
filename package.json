@@ -1,0 +1,38 @@
+{
+  "name": "hooktower",
+  "version": "0.1.0",
+  "description": "A lightweight webhook-driven alternative to Watchtower.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "docker",
+    "webhook",
+    "watchtower",
+    "containers"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "dependencies": {
+    "dockerode": "^4.0.9",
+    "fastify": "^5.6.2",
+    "pino": "^10.3.1",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.43",
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}
