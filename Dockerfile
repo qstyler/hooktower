@@ -1,4 +1,4 @@
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml* ./
@@ -10,7 +10,7 @@ COPY src ./src
 RUN pnpm build
 RUN pnpm prune --prod
 
-FROM node:22-alpine
+FROM node:24-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 RUN corepack enable
