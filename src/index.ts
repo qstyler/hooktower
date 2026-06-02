@@ -16,9 +16,15 @@ async function main() {
       port: config.PORT,
       dockerHost: config.DOCKER_HOST,
       dockerHostSource: customDockerHostProvided ? "custom" : "default",
-      dockerConfigFile: config.DOCKER_CONFIG_FILE
+      dockerConfigFile: config.DOCKER_CONFIG_FILE,
+      cleanupImages: config.HOOKTOWER_CLEANUP
     },
     "Hooktower starting"
+  );
+  logger.info(
+    config.HOOKTOWER_CLEANUP
+      ? "Image cleanup enabled"
+      : "Image cleanup disabled"
   );
 
   await checkDockerConfigFile(config.DOCKER_CONFIG_FILE, logger);

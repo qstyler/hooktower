@@ -39,6 +39,7 @@ Instead of polling registries every few minutes, Hooktower listens for webhooks 
 | `WEBHOOK_SECRET` | ✅ | - |
 | `DOCKER_HOST` | ❌ | `unix:///var/run/docker.sock` |
 | `DOCKER_CONFIG_FILE` | ❌ | `/config.json` |
+| `HOOKTOWER_CLEANUP` | ❌ | `false` |
 | `HOST` | ❌ | `0.0.0.0` |
 | `PORT` | ❌ | `4665` |
 
@@ -48,6 +49,7 @@ Instead of polling registries every few minutes, Hooktower listens for webhooks 
 WEBHOOK_SECRET=abcdefghijklmnopqrstuvwxyz123456
 DOCKER_HOST=unix:///var/run/docker.sock
 DOCKER_CONFIG_FILE=/config.json
+HOOKTOWER_CLEANUP=false
 PORT=4665
 ```
 
@@ -86,6 +88,7 @@ services:
       - "4665:4665"
     environment:
       WEBHOOK_SECRET: your-super-secret-token
+      HOOKTOWER_CLEANUP: "true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /path/to/config.json:/config.json:ro
@@ -215,6 +218,8 @@ Remove container
 Create container
   ↓
 Start container
+  ↓
+Remove replaced image when HOOKTOWER_CLEANUP=true
 ```
 
 ---

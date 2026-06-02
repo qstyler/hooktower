@@ -21,9 +21,19 @@ describe("loadConfig", () => {
       WEBHOOK_SECRET: "x".repeat(32),
       DOCKER_HOST: "unix:///var/run/docker.sock",
       DOCKER_CONFIG_FILE: "/config.json",
+      HOOKTOWER_CLEANUP: false,
       HOST: "0.0.0.0",
       PORT: 4665
     });
+  });
+
+  it("loads HOOKTOWER_CLEANUP when enabled", () => {
+    expect(
+      loadConfig({
+        WEBHOOK_SECRET: "x".repeat(32),
+        HOOKTOWER_CLEANUP: "true"
+      }).HOOKTOWER_CLEANUP
+    ).toBe(true);
   });
 
   it("loads DOCKER_HOST when provided", () => {

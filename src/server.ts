@@ -14,6 +14,7 @@ type ServerOptions = {
     repository: string,
     tag: string,
     dockerConfigFile: string,
+    cleanupImages: boolean,
     logger: Logger
   ) => Promise<UpdateResult>;
   logger: Logger;
@@ -71,6 +72,7 @@ export function buildServer({
       repository,
       tag,
       config.DOCKER_CONFIG_FILE,
+      config.HOOKTOWER_CLEANUP,
       request.log
     );
   });

@@ -11,6 +11,10 @@ const envSchema = z.object({
     .min(32, "WEBHOOK_SECRET must be at least 32 characters"),
   DOCKER_HOST: z.string().min(1).default(defaultDockerHost),
   DOCKER_CONFIG_FILE: z.string().min(1).default(defaultDockerConfigFile),
+  HOOKTOWER_CLEANUP: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
   HOST: z.string().default("0.0.0.0"),
   PORT: z.coerce.number().int().positive().default(4665)
 });

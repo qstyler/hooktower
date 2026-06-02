@@ -10,6 +10,7 @@ const config: Config = {
   WEBHOOK_SECRET: "x".repeat(32),
   DOCKER_HOST: "unix:///var/run/docker.sock",
   DOCKER_CONFIG_FILE: "/config.json",
+  HOOKTOWER_CLEANUP: false,
   HOST: "0.0.0.0",
   PORT: 4665
 };
@@ -98,6 +99,7 @@ describe("webhook route", () => {
       "kostia/gearbot",
       "latest",
       "/config.json",
+      false,
       expect.any(Object)
     );
 

@@ -87,6 +87,7 @@ export async function updateMatchingContainers(
   repository: string,
   tag: string,
   dockerConfigFile: string,
+  cleanupImages = false,
   logger?: Logger
 ): Promise<UpdateResult> {
   const startedAt = Date.now();
@@ -136,6 +137,7 @@ export async function updateMatchingContainers(
     const container = docker.getContainer(summary.Id);
     const details = await container.inspect();
     const name = containerName(details.Name, summary.Names);
+    const previousImageId = details.Image;
 
     logger?.info({ containerId: summary.Id, name }, "Container stop started");
     try {
@@ -198,6 +200,30 @@ export async function updateMatchingContainers(
       throw error;
     }
 
+    if (cleanupImages) {
+      try {
+        await cleanupReplacedImage(docker, {
+          previousImage: summary.Image,
+          previousImageId,
+          newContainer: created,
+          name,
+          logger
+        });
+      } catch (error) {
+        logger?.warn(
+          {
+            err: error,
+            image: summary.Image,
+            imageId: previousImageId,
+            containerId: created.id,
+            name,
+            reason: errorMessage(error)
+          },
+          "Image cleanup skipped"
+        );
+      }
+    }
+
     actions.push({
       previousContainerId: summary.Id,
       newContainerId: created.id,
@@ -251,6 +277,74 @@ async function pullImage(
   } catch (error) {
     logger?.error({ err: error, image }, "Image pull failed");
     throw error;
+  }
+}
+
+async function cleanupReplacedImage(
+  docker: Docker,
+  {
+    previousImage,
+    previousImageId,
+    newContainer,
+    name,
+    logger
+  }: {
+    previousImage: string;
+    previousImageId: string;
+    newContainer: Docker.Container;
+    name: string;
+    logger?: Logger;
+  }
+): Promise<void> {
+  const cleanupContext = {
+    image: previousImage,
+    imageId: previousImageId,
+    containerId: newContainer.id,
+    name
+  };
+  logger?.info(cleanupContext, "Image cleanup started");
+
+  if (!previousImageId) {
+    logger?.info(
+      { ...cleanupContext, reason: "Previous container image ID is unavailable" },
+      "Image cleanup skipped"
+    );
+    return;
+  }
+
+  const newDetails = await newContainer.inspect();
+  if (newDetails.Image === previousImageId) {
+    logger?.info(
+      { ...cleanupContext, reason: "Container image was not replaced" },
+      "Image cleanup skipped"
+    );
+    return;
+  }
+
+  const runningContainers = await docker.listContainers();
+  const runningContainerUsingImage = runningContainers.find(
+    (container) => container.ImageID === previousImageId
+  );
+  if (runningContainerUsingImage) {
+    logger?.info(
+      {
+        ...cleanupContext,
+        reason: "Image is still used by a running container",
+        runningContainerId: runningContainerUsingImage.Id
+      },
+      "Image cleanup skipped"
+    );
+    return;
+  }
+
+  try {
+    await docker.getImage(previousImageId).remove();
+    logger?.info(cleanupContext, "Image cleanup completed");
+  } catch (error) {
+    logger?.warn(
+      { ...cleanupContext, err: error, reason: errorMessage(error) },
+      "Image cleanup skipped"
+    );
   }
 }
 
